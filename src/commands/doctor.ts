@@ -1,9 +1,9 @@
 // merch-angel doctor — post-install smoke check
 
-import { existsSync } from 'fs'
-import { spawnSync } from 'child_process'
-import { resolve } from 'path'
-import { info, ok, warn, error } from '../utils/log'
+import { spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { error, info, ok, warn } from '../utils/log'
 
 interface DoctorResult {
   tool: string
@@ -50,9 +50,7 @@ export function doctor(): { exitCode: number; results: DoctorResult[] } {
         vtracerFound = true
         break
       }
-    } catch {
-      continue
-    }
+    } catch {}
   }
   if (!vtracerFound) {
     results.push({
@@ -67,16 +65,20 @@ export function doctor(): { exitCode: number; results: DoctorResult[] } {
     require.resolve('imagetracerjs')
     results.push({ tool: 'imagetracerjs', status: 'ok', message: 'available (fallback engine)' })
   } catch {
-    results.push({ tool: 'imagetracerjs', status: 'fail', message: 'not installed — run bun install' })
+    results.push({
+      tool: 'imagetracerjs',
+      status: 'fail',
+      message: 'not installed — run bun install',
+    })
   }
 
   // 5. Output directory writable
   try {
     const tmp = resolve(process.cwd(), 'output', '.doctor-test')
-    const { mkdirSync, writeFileSync } = require('fs')
+    const { mkdirSync, writeFileSync } = require('node:fs')
     mkdirSync(resolve(process.cwd(), 'output'), { recursive: true })
     writeFileSync(tmp, '', 'utf-8')
-    const { unlinkSync } = require('fs')
+    const { unlinkSync } = require('node:fs')
     unlinkSync(tmp)
     results.push({ tool: 'output dir', status: 'ok', message: 'writable' })
   } catch {
@@ -88,10 +90,15 @@ export function doctor(): { exitCode: number; results: DoctorResult[] } {
   for (const r of results) {
     if (r.status === 'ok') ok(`  ${r.tool}: ${r.message}`)
     else if (r.status === 'warn') warn(`  ${r.tool}: ${r.message}`)
-    else { error(`  ${r.tool}: ${r.message}`); fails++ }
+    else {
+      error(`  ${r.tool}: ${r.message}`)
+      fails++
+    }
   }
 
   const exitCode = fails > 0 ? 1 : 0
-  info(`\n${results.length} checks · ${results.filter((r) => r.status === 'ok').length} ok · ${results.filter((r) => r.status === 'warn').length} warn · ${fails} fail`)
+  info(
+    `\n${results.length} checks · ${results.filter((r) => r.status === 'ok').length} ok · ${results.filter((r) => r.status === 'warn').length} warn · ${fails} fail`,
+  )
   return { exitCode, results }
 }

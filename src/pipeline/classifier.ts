@@ -1,7 +1,7 @@
 // merch-angel classifier — filename → route decision
 // Rules documented in docs/ROUTING.md. Extendable via config in future.
 
-import { FileEntry } from '../utils/paths'
+import type { FileEntry } from '../utils/paths'
 
 export enum Route {
   /** Vector trace via vtracer */
@@ -23,18 +23,17 @@ export function classify(entries: FileEntry[]): ClassifiedFile[] {
     const name = f.baseName.toLowerCase()
 
     // Skip existing SVGs
-    if (f.ext === '.svg') return { ...f, route: Route.Skip, outputName: f.baseName + '.svg', reason: 'already svg' }
+    if (f.ext === '.svg')
+      return { ...f, route: Route.Skip, outputName: `${f.baseName}.svg`, reason: 'already svg' }
 
     // Embedded-raster routes: mockups and photos
-    const embedPatterns = [
-      '_mockupwhitewall', '_mockup_website', '_website',
-    ]
+    const embedPatterns = ['_mockupwhitewall', '_mockup_website', '_website']
     for (const p of embedPatterns) {
       if (name.includes(p)) {
         return {
           ...f,
           route: Route.Embed,
-          outputName: f.baseName + '_with_mockup.svg',
+          outputName: `${f.baseName}_with_mockup.svg`,
           reason: `filename matches '${p}' — mockup/photo route`,
         }
       }
@@ -45,33 +44,58 @@ export function classify(entries: FileEntry[]): ClassifiedFile[] {
       return {
         ...f,
         route: Route.Embed,
-        outputName: f.baseName + '_with_mockup.svg',
+        outputName: `${f.baseName}_with_mockup.svg`,
         reason: 'detected photographic content (phones_ prefix)',
       }
     }
 
     // Artwork (a1, a2, a3, a4 faces) — always trace
     if (/^a[1-4](\s*\(\d+\))?$/.test(name)) {
-      return { ...f, route: Route.Trace, outputName: f.baseName + '.svg', reason: 'face artwork — vector trace' }
+      return {
+        ...f,
+        route: Route.Trace,
+        outputName: `${f.baseName}.svg`,
+        reason: 'face artwork — vector trace',
+      }
     }
 
     // Diagrams
     if (name.includes('diagramblack') || name.includes('diagramwhite')) {
-      return { ...f, route: Route.Trace, outputName: f.baseName + '.svg', reason: 'diagram — vector trace' }
+      return {
+        ...f,
+        route: Route.Trace,
+        outputName: `${f.baseName}.svg`,
+        reason: 'diagram — vector trace',
+      }
     }
 
     // Untitled art
     if (name.startsWith('untitled') || name.startsWith('untitled-')) {
-      return { ...f, route: Route.Trace, outputName: f.baseName + '.svg', reason: 'untitled artwork — vector trace' }
+      return {
+        ...f,
+        route: Route.Trace,
+        outputName: `${f.baseName}.svg`,
+        reason: 'untitled artwork — vector trace',
+      }
     }
 
     // _mockupsized → true artwork
     if (name.includes('_mockupsized') || name.includes('mockupsized')) {
-      return { ...f, route: Route.Trace, outputName: f.baseName + '.svg', reason: 'mockupsized artwork — vector trace' }
+      return {
+        ...f,
+        route: Route.Trace,
+        outputName: `${f.baseName}.svg`,
+        reason: 'mockupsized artwork — vector trace',
+      }
     }
 
     // Default: trace. Merch pipeline should be vector-first.
-    return { ...f, route: Route.Trace, outputName: f.baseName + '.svg', reason: 'default vector-first route' }
+    return {
+      ...f,
+      route: Route.Trace,
+      outputName: `${f.baseName}.svg`,
+      reason: 'default vector-first route',
+    }
   })
 }
 

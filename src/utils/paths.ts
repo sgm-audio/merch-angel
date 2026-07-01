@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, statSync } from 'fs'
-import { extname, join, relative, resolve } from 'path'
+import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
+import { extname, join, relative, resolve } from 'node:path'
 
 export interface FileEntry {
   fullPath: string
@@ -19,7 +19,10 @@ export function listImages(srcDir: string): FileEntry[] {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name)
       const s = statSync(full)
-      if (s.isDirectory()) { walk(full); continue }
+      if (s.isDirectory()) {
+        walk(full)
+        continue
+      }
       if (!isImageExt(name)) continue
       entries.push({
         fullPath: full,

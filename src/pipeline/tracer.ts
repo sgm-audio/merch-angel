@@ -2,10 +2,10 @@
 // Primary: vtracer CLI binary (downloaded postinstall, verified by shasum)
 // Fallback: imagetracerjs (pure JS, lower quality, no native deps)
 
-import { existsSync } from 'fs'
-import { spawnSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 interface TraceOptions {
   /** vtracer binary path */
@@ -38,7 +38,7 @@ function findVtracer(): string | null {
   for (const c of candidates) {
     if (existsSync(c)) return c
     // Try with .exe on windows
-    const cExe = c + '.exe'
+    const cExe = `${c}.exe`
     if (existsSync(cExe)) return cExe
   }
   return null
@@ -68,12 +68,18 @@ export function traceImage(inputPath: string, outputPath: string, options?: Trac
 function traceWithVtracer(bin: string, input: string, output: string, opts: TraceOptions): boolean {
   // ponytail: vtracer CLI is stable; we shell out + capture exit code
   const args = [
-    '--input', input,
-    '--output', output,
-    '--colormode', opts.binary ? 'binary' : 'spline',
-    '--color_precision', String(opts.colorPrecision),
-    '--corner_threshold', String(opts.cornerThreshold),
-    '--filter_speckle', String(opts.speckleFilter),
+    '--input',
+    input,
+    '--output',
+    output,
+    '--colormode',
+    opts.binary ? 'binary' : 'spline',
+    '--color_precision',
+    String(opts.colorPrecision),
+    '--corner_threshold',
+    String(opts.cornerThreshold),
+    '--filter_speckle',
+    String(opts.speckleFilter),
   ]
 
   const result = spawnSync(bin, args, { timeout: 120000 })
@@ -110,7 +116,9 @@ function traceWithFallback(input: string, output: string, opts: TraceOptions): b
     `
     const result = spawnSync('node', ['-e', script], { timeout: 60000 })
     if (result.status !== 0) {
-      console.error(`[tracer] imagetracerjs fallback failed: ${result.stderr?.toString().slice(0, 500)}`)
+      console.error(
+        `[tracer] imagetracerjs fallback failed: ${result.stderr?.toString().slice(0, 500)}`,
+      )
       return false
     }
     return true
@@ -126,13 +134,17 @@ function traceWithFallback(input: string, output: string, opts: TraceOptions): b
  */
 export function isGreyscale(inputPath: string): boolean {
   try {
-    const magick = spawnSync('magick', [inputPath, '-colorspace', 'HSL', '-format', '%[mean]', 'info:'], {
-      timeout: 10000,
-    })
+    const magick = spawnSync(
+      'magick',
+      [inputPath, '-colorspace', 'HSL', '-format', '%[mean]', 'info:'],
+      {
+        timeout: 10000,
+      },
+    )
     if (magick.status !== 0) return false
 
     // Approximate: if mean saturation is very low, it's greyscale
-    const saturation = parseFloat(magick.stdout.toString().trim())
+    const saturation = Number.parseFloat(magick.stdout.toString().trim())
     // ponytail: saturation < 0.05 in HSL mean → greyscale
     return saturation < 0.05
   } catch {

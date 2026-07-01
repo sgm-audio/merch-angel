@@ -1,14 +1,14 @@
 // merch-angel convert — main batch pipeline
 
-import { resolve, join } from 'path'
-import { listImages, ensureDir } from '../utils/paths'
+import { join, resolve } from 'node:path'
 import { classify, classifySummary } from '../pipeline/classifier'
-import { writeManifest } from '../pipeline/manifest'
-import { traceImage, isGreyscale } from '../pipeline/tracer'
-import { embedImage } from '../pipeline/embedder'
 import { Route } from '../pipeline/classifier'
-import { info, ok, warn, error as logError, error } from '../utils/log'
+import { embedImage } from '../pipeline/embedder'
+import { writeManifest } from '../pipeline/manifest'
+import { isGreyscale, traceImage } from '../pipeline/tracer'
+import { error, info, error as logError, ok, warn } from '../utils/log'
 import { banner as printBanner } from '../utils/log'
+import { ensureDir, listImages } from '../utils/paths'
 
 interface ConvertOptions {
   src: string
@@ -19,7 +19,9 @@ interface ConvertOptions {
   vtracerPath?: string
 }
 
-export async function convert(options: ConvertOptions): Promise<{ exitCode: number; manifestPath?: string }> {
+export async function convert(
+  options: ConvertOptions,
+): Promise<{ exitCode: number; manifestPath?: string }> {
   const srcDir = resolve(options.src)
   const outDir = resolve(options.out)
 
@@ -51,7 +53,10 @@ export async function convert(options: ConvertOptions): Promise<{ exitCode: numb
   }
 
   // Execute
-  let traced = 0, embedded = 0, skipped = 0, errors = 0
+  let traced = 0
+  let embedded = 0
+  let skipped = 0
+  let errors = 0
 
   for (const f of classified) {
     const inputPath = f.fullPath
@@ -71,7 +76,7 @@ export async function convert(options: ConvertOptions): Promise<{ exitCode: numb
       })
       if (ok) {
         traced++
-        process.stdout.write(`\x1b[1A\x1b[2K`)
+        process.stdout.write('\x1b[1A\x1b[2K')
         info(`traced ${f.baseName}${greyscale ? ' (greyscale, binary mode)' : ''}`)
       } else {
         errors++
@@ -79,14 +84,16 @@ export async function convert(options: ConvertOptions): Promise<{ exitCode: numb
       }
     } else if (f.route === Route.Embed) {
       // Determine if we should strip bg — skip for greyscale/art that needs white
-      const strip = options.stripBg !== false && !f.baseName.toLowerCase().includes('grey') &&
+      const strip =
+        options.stripBg !== false &&
+        !f.baseName.toLowerCase().includes('grey') &&
         !f.baseName.toLowerCase().includes('grey_')
       const ok = embedImage(inputPath, outputPath, {
         stripBg: strip,
       })
       if (ok) {
         embedded++
-        process.stdout.write(`\x1b[1A\x1b[2K`)
+        process.stdout.write('\x1b[1A\x1b[2K')
         info(`embedded ${f.baseName}`)
       } else {
         errors++

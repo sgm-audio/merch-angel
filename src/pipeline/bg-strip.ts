@@ -12,7 +12,10 @@ function isNearWhite(r: number, g: number, b: number): boolean {
   return distFromWhite(r, g, b) <= WHITE_THRESHOLD
 }
 
-interface Pixel { x: number; y: number }
+interface Pixel {
+  x: number
+  y: number
+}
 
 /**
  * Remove near-white background from a flat-background image.
@@ -22,11 +25,7 @@ interface Pixel { x: number; y: number }
  * ponytail: BFS flood-fill is simplest correct algo for this.
  * Upgrade to ML-based background removal if corner-flood misses organic edges.
  */
-export function stripWhiteBackground(
-  data: Buffer,
-  width: number,
-  height: number,
-): Buffer {
+export function stripWhiteBackground(data: Buffer, width: number, height: number): Buffer {
   const out = Buffer.from(data) // clone
   const visited = new Uint8Array(width * height)
 
@@ -44,16 +43,26 @@ export function stripWhiteBackground(
   // Seed from all four edges
   const margin = 2
   for (let x = 0; x < width; x++) {
-    for (let y = 0; y < margin; y++) { push(x, y); push(x, height - 1 - y) }
+    for (let y = 0; y < margin; y++) {
+      push(x, y)
+      push(x, height - 1 - y)
+    }
   }
   for (let y = 0; y < height; y++) {
-    for (let x = 0; x < margin; x++) { push(x, y); push(width - 1 - x, y) }
+    for (let x = 0; x < margin; x++) {
+      push(x, y)
+      push(width - 1 - x, y)
+    }
   }
 
   while (queue.length > 0) {
-    const { x, y } = queue.pop()!
+    const px = queue.pop()
+    if (!px) break
+    const { x, y } = px
     const i = (y * width + x) * 4
-    const r = out[i], g = out[i + 1], b = out[i + 2]
+    const r = out[i]
+    const g = out[i + 1]
+    const b = out[i + 2]
 
     if (!isNearWhite(r, g, b)) continue
 

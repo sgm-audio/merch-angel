@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 // merch-angel — Image → Shopify-ready SVG batch pipeline
 
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { Command } from 'commander'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
-import { banner } from './utils/log'
 import { convert } from './commands/convert'
+import { doctor } from './commands/doctor'
 import { preview } from './commands/preview'
 import { verify } from './commands/verify'
-import { doctor } from './commands/doctor'
+import { banner } from './utils/log'
 import { info } from './utils/log'
 
 // Version from package.json

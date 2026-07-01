@@ -1,6 +1,6 @@
-import { createHash } from 'crypto'
-import { createReadStream } from 'fs'
-import { statSync } from 'fs'
+import { createHash } from 'node:crypto'
+import { createReadStream } from 'node:fs'
+import { statSync } from 'node:fs'
 
 export async function sha256File(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {

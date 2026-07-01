@@ -1,9 +1,9 @@
 // merch-angel preview — Playwright-backed SVG gallery
 // Serves produced SVGs on localhost:7465 with white/black/heather backdrops
 
-import { readdirSync, readFileSync, existsSync } from 'fs'
-import { join, resolve, extname } from 'path'
-import { info, ok, error as logError } from '../utils/log'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { extname, join, resolve } from 'node:path'
+import { info, error as logError, ok } from '../utils/log'
 
 interface PreviewOptions {
   dir: string
@@ -49,7 +49,7 @@ export async function preview(options: PreviewOptions): Promise<void> {
 
   // Serve with Bun
   // ponytail: Bun.serve() for zero-dep static file server + inline gallery
-  const server = Bun.serve({
+  const _server = Bun.serve({
     port,
     async fetch(req) {
       const url = new URL(req.url)
@@ -91,7 +91,7 @@ export async function preview(options: PreviewOptions): Promise<void> {
   info('press Ctrl+C to stop')
 
   // Keep the process alive
-  await Bun.sleep(Infinity)
+  await Bun.sleep(Number.POSITIVE_INFINITY)
 }
 
 function extractDims(svg: string): string {
@@ -103,7 +103,10 @@ function extractDims(svg: string): string {
   return 'unknown'
 }
 
-function generateGalleryHtml(svgs: Array<{ name: string; size: number; dims: string }>, _dir: string): string {
+function generateGalleryHtml(
+  svgs: Array<{ name: string; size: number; dims: string }>,
+  _dir: string,
+): string {
   const cards = svgs
     .map(
       (s) => `

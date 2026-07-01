@@ -1,8 +1,8 @@
 // merch-angel verify — SVG well-formedness + size threshold check
 
-import { readdirSync, readFileSync, existsSync, statSync } from 'fs'
-import { extname, resolve } from 'path'
-import { info, ok, warn, error as logError } from '../utils/log'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { extname, resolve } from 'node:path'
+import { info, error as logError, ok, warn } from '../utils/log'
 
 interface VerifyOptions {
   dir: string
@@ -44,7 +44,9 @@ export function verify(options: VerifyOptions): { exitCode: number; results: Ver
 
     // Check file size
     if (stat.size > maxSize) {
-      issues.push(`oversized: ${(stat.size / 1024 / 1024).toFixed(1)} MB (limit ${maxSize / 1024 / 1024} MB)`)
+      issues.push(
+        `oversized: ${(stat.size / 1024 / 1024).toFixed(1)} MB (limit ${maxSize / 1024 / 1024} MB)`,
+      )
     }
 
     // Check well-formedness (basic)
@@ -55,7 +57,8 @@ export function verify(options: VerifyOptions): { exitCode: number; results: Ver
         issues.push('empty file')
       } else {
         if (!/<svg[\s>]/.test(content)) issues.push('missing <svg> root element')
-        if (/<script[\s>]/.test(content)) issues.push('contains <script> tag — possible security risk')
+        if (/<script[\s>]/.test(content))
+          issues.push('contains <script> tag — possible security risk')
         if (content.includes('<!DOCTYPE') && !content.includes('<!DOCTYPE svg')) {
           issues.push('unusual doctype declaration')
         }
@@ -98,6 +101,8 @@ export function verify(options: VerifyOptions): { exitCode: number; results: Ver
   const failures = results.filter((r) => !r.valid)
   const exitCode = failures.length > 0 ? 1 : 0
 
-  info(`\n${results.length} verified · ${results.length - failures.length} pass · ${failures.length} fail`)
+  info(
+    `\n${results.length} verified · ${results.length - failures.length} pass · ${failures.length} fail`,
+  )
   return { exitCode, results }
 }

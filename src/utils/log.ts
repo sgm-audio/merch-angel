@@ -12,19 +12,34 @@ export enum Level {
 }
 
 function fmt(level: Level, msg: string): string {
-  const sym = level === 'ok' ? '\x1b[1;32m✓\x1b[0m'
-    : level === 'warn' ? '\x1b[33m⚠\x1b[0m'
-    : level === 'error' ? '\x1b[1;31m✗\x1b[0m'
-    : level === 'debug' ? '\x1b[2m…\x1b[0m'
-    : '\x1b[2m∙\x1b[0m'
+  const sym =
+    level === 'ok'
+      ? '\x1b[1;32m✓\x1b[0m'
+      : level === 'warn'
+        ? '\x1b[33m⚠\x1b[0m'
+        : level === 'error'
+          ? '\x1b[1;31m✗\x1b[0m'
+          : level === 'debug'
+            ? '\x1b[2m…\x1b[0m'
+            : '\x1b[2m∙\x1b[0m'
   return `${brand} ${sym} ${msg}`
 }
 
-export function info(msg: string): void { console.log(fmt(Level.Info, msg)) }
-export function ok(msg: string): void   { console.log(fmt(Level.Ok, msg)) }
-export function warn(msg: string): void { console.error(fmt(Level.Warn, msg)) }
-export function error(msg: string): void { console.error(fmt(Level.Error, msg)) }
-export function debug(msg: string): void { if (process.env.DEBUG) console.log(fmt(Level.Debug, msg)) }
+export function info(msg: string): void {
+  console.log(fmt(Level.Info, msg))
+}
+export function ok(msg: string): void {
+  console.log(fmt(Level.Ok, msg))
+}
+export function warn(msg: string): void {
+  console.error(fmt(Level.Warn, msg))
+}
+export function error(msg: string): void {
+  console.error(fmt(Level.Error, msg))
+}
+export function debug(msg: string): void {
+  if (process.env.DEBUG) console.log(fmt(Level.Debug, msg))
+}
 
 export function banner(version: string): void {
   console.log(`\x1b[38;5;245m
@@ -34,13 +49,15 @@ export function banner(version: string): void {
 }
 
 export function summary(
-  total: number,
+  _total: number,
   traced: number,
   embedded: number,
   skipped: number,
   errors: number,
   outDir: string,
 ): void {
-  console.log(`\n${brand} done. ${traced} traced · ${embedded} embedded · ${skipped} skipped · ${errors} failed`)
+  console.log(
+    `\n${brand} done. ${traced} traced · ${embedded} embedded · ${skipped} skipped · ${errors} failed`,
+  )
   if (errors === 0) ok(`output → ${outDir}`)
 }

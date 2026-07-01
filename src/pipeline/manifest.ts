@@ -1,8 +1,8 @@
 // merch-angel manifest — dry-run planner + CSV export
 
-import { writeFileSync } from 'fs'
-import { resolve } from 'path'
-import { ClassifiedFile, Route } from './classifier'
+import { writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { type ClassifiedFile, Route } from './classifier'
 
 export interface ManifestRow {
   source: string
@@ -22,9 +22,10 @@ export function writeManifest(classified: ClassifiedFile[], outDir: string): str
     }))
 
   const header = 'source,route,target,reason'
-  const csv = [header, ...rows.map((r) =>
-    `"${r.source}","${r.route}","${r.target}","${r.reason}"`,
-  )].join('\n') + '\n'
+  const csv = `${[
+    header,
+    ...rows.map((r) => `"${r.source}","${r.route}","${r.target}","${r.reason}"`),
+  ].join('\n')}\n`
 
   const manifestPath = resolve(outDir, '_manifest.csv')
   writeFileSync(manifestPath, csv, 'utf-8')

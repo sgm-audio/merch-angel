@@ -1,8 +1,8 @@
 // merch-angel embedder — wraps raster as base64 PNG in <svg> shell
 // Matches existing a1 (1).svg convention: <svg><image href="data:..."/></svg>
 
-import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { spawnSync } from 'child_process'
+import { spawnSync } from 'node:child_process'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { stripWhiteBackground } from './bg-strip'
 
 interface EmbedOptions {
@@ -30,12 +30,11 @@ export function embedImage(inputPath: string, outputPath: string, options?: Embe
   // Step 1: Resize input to RGBA PNG at target max dimension
   const tmpPng = outputPath.replace('.svg', '.tmp.png')
 
-  const resize = spawnSync('magick', [
-    inputPath,
-    '-resize', `${opts.maxDim}x${opts.maxDim}>`,
-    '-alpha', 'on',
-    tmpPng,
-  ], { timeout: 60000 })
+  const resize = spawnSync(
+    'magick',
+    [inputPath, '-resize', `${opts.maxDim}x${opts.maxDim}>`, '-alpha', 'on', tmpPng],
+    { timeout: 60000 },
+  )
 
   if (resize.status !== 0) {
     console.error(`embedder: ImageMagick resize failed for ${inputPath}`)
@@ -45,7 +44,8 @@ export function embedImage(inputPath: string, outputPath: string, options?: Embe
 
   // Get dimensions
   const id = spawnSync('magick', [tmpPng, '-format', '%w %h', 'info:'], { timeout: 10000 })
-  let w = 600, h = 900
+  let w = 600
+  let h = 900
   if (id.status === 0) {
     const p = id.stdout.toString().trim().split(' ')
     w = Number(p[0]) || w
@@ -60,19 +60,30 @@ export function embedImage(inputPath: string, outputPath: string, options?: Embe
       const tmpRaw = outputPath.replace('.svg', '.tmp.raw')
       writeFileSync(tmpRaw, stripped)
       const tmpStripped = outputPath.replace('.svg', '.tmp-stripped.png')
-      spawnSync('magick', [
-        '-size', `${w}x${h}`, '-depth', '8', `rgba:${tmpRaw}`,
-        tmpStripped,
-      ], { timeout: 30000 })
+      spawnSync('magick', ['-size', `${w}x${h}`, '-depth', '8', `rgba:${tmpRaw}`, tmpStripped], {
+        timeout: 30000,
+      })
       // Clean raw temp
-      try { spawnSync('rm', [tmpRaw]) } catch { /* ignore */ }
+      try {
+        spawnSync('rm', [tmpRaw])
+      } catch {
+        /* ignore */
+      }
 
       if (existsSync(tmpStripped)) {
         const data = readFileSync(tmpStripped)
         const base64 = data.toString('base64')
-        try { spawnSync('rm', [tmpStripped]) } catch { /* ignore */ }
+        try {
+          spawnSync('rm', [tmpStripped])
+        } catch {
+          /* ignore */
+        }
         writeSvg(outputPath, w, h, base64)
-        try { spawnSync('rm', [tmpPng]) } catch { /* ignore */ }
+        try {
+          spawnSync('rm', [tmpPng])
+        } catch {
+          /* ignore */
+        }
         return true
       }
     }
@@ -82,7 +93,11 @@ export function embedImage(inputPath: string, outputPath: string, options?: Embe
   const data = readFileSync(tmpPng)
   const base64 = data.toString('base64')
   writeSvg(outputPath, w, h, base64)
-  try { spawnSync('rm', [tmpPng]) } catch { /* ignore */ }
+  try {
+    spawnSync('rm', [tmpPng])
+  } catch {
+    /* ignore */
+  }
   return true
 }
 
