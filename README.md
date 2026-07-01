@@ -126,6 +126,15 @@ postinstall script downloads vtracer. No npm, no registry, no account.
 | ImageMagick `magick` | ✓ | Resize, format detection, pre-process |
 | vtracer binary | optional | Downloaded postinstall; pure-JS fallback built-in |
 
+## Legal
+
+**You must own the rights to every image you convert.** merch-angel is a
+file format tool, not a content license. Using it on images you don't own
+or don't have commercial rights to is copyright infringement — and
+print-on-demand platforms will ban you for it.
+
+→ [Full terms of use](TERMS.md)
+
 ## License
 
 MIT © [SGM Studios / Scott Mills](https://github.com/scottmills306)
