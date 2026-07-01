@@ -29,8 +29,10 @@ const DEFAULT_OPTIONS: TraceOptions = {
 }
 
 function findVtracer(): string | null {
-  // Check node_modules/.bin first, then PATH
+  // Check relative to package root (global install / symlink), then CWD, then PATH
+  const pkgRoot = resolve(import.meta.dir, '..', '..')
   const candidates = [
+    resolve(pkgRoot, '.vtracer-binary', 'vtracer'),
     resolve(process.cwd(), 'node_modules', '.bin', 'vtracer'),
     resolve(process.cwd(), '.vtracer-binary', 'vtracer'),
     'vtracer',

@@ -35,7 +35,9 @@ export function doctor(): { exitCode: number; results: DoctorResult[] } {
   }
 
   // 3. vtracer binary
+  const pkgRoot = resolve(import.meta.dir, '..', '..')
   const vtracerPaths = [
+    resolve(pkgRoot, '.vtracer-binary', 'vtracer'),
     resolve(process.cwd(), 'node_modules', '.bin', 'vtracer'),
     resolve(process.cwd(), '.vtracer-binary', 'vtracer'),
     'vtracer',
