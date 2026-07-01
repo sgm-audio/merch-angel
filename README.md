@@ -21,22 +21,23 @@
 ## Install
 
 ```bash
-bun install -g merch-angel
+bun install -g github:scottmills306/merch-angel
+bun pm trust merch-angel
 ```
 
-That's it. Postinstall pulls the `vtracer` binary for your platform, verifies
-the SHA256, and links the CLI. No Docker, no Python, no system Rust.
+Two lines. Postinstall pulls the `vtracer` binary for your platform, verifies
+the SHA256, and links the CLI. No Docker, no Python, no system Rust, no npm account.
 
 **Prerequisites:** [Bun](https://bun.sh) ≥1.3.0, [ImageMagick](https://imagemagick.org) (`magick`).
 
 ## Quickstart
 
 ```bash
-merch-angel convert --src ~/Downloads/My-Artwork --out ./shopify-svgs
+merch-angel convert ~/Downloads/My-Artwork
 ```
 
-Reads every PNG, JPG, JPEG, GIF, BMP, WebP, TIFF in the folder and produces
-SVGs ready for Printful, Printify, Gelato, or direct Shopify upload.
+That's it. Reads every PNG, JPG, JPEG, GIF, BMP, WebP, TIFF in the folder,
+outputs SVGs to `~/Downloads/My-Artwork-merch/`. No flags.
 
 ## How it works
 
@@ -57,30 +58,30 @@ Smart defaults:
 ## Commands
 
 ```
-merch-angel convert --src <dir> --out <dir>   Batch convert
-merch-angel preview   --dir <dir>             Browser gallery (:7465)
-merch-angel verify    --dir <dir>             SVG well-formedness check
-merch-angel doctor                            System dependency check
-merch-angel --version                         Show version
+merch-angel convert <folder>     Convert — auto-creates <folder>-merch/
+merch-angel preview <folder>     Gallery — localhost:7465
+merch-angel verify <folder>      Check — well-formed + size limits
+merch-angel doctor               Check deps
+merch-angel --version            Show version
 ```
 
-### Options
+### Options (all optional)
 
 `merch-angel convert`:
 ```
--s, --src <path>        Source folder of images          [required]
--o, --out <path>        Output folder for SVGs           [required]
--n, --dry-run           Plan only, no files written
--f, --force-fallback    Use JS engine instead of vtracer
---vtracer-path <path>   Custom vtracer binary path
---no-strip-bg           Keep original backgrounds
+<folder>               Source folder of images             [positional]
+-o, --out <dir>        Output folder (default: <folder>-merch/)
+-n, --dry-run          Just show what would happen
+-f, --force-fallback   Use JS engine instead of vtracer
+--vtracer-path <path>  Custom vtracer binary
+--no-strip-bg          Keep original backgrounds
 ```
 
 ## Gallery preview
 
 ```bash
-merch-angel convert --src ./art --out ./output
-merch-angel preview --dir ./output
+merch-angel convert ./art
+merch-angel preview ./art-merch/
 # → http://localhost:7465
 ```
 
@@ -90,7 +91,7 @@ exactly how it'll look on a black tee before uploading.
 ## Verification
 
 ```bash
-merch-angel verify --dir ./output
+merch-angel verify ./output
 ```
 
 Checks every SVG for:
@@ -106,6 +107,16 @@ Postinstall fetches [`vtracer`](https://github.com/vertex-lab/vtracer)
 at the pinned version. SHA256 verified. If the download fails — proxy,
 air-gapped, offline — `merch-angel` falls back to a pure-JS engine
 (`imagetracerjs`) with no native dependencies. Lower quality but works.
+
+## Install from GitHub (no npm account needed)
+
+```bash
+bun install -g github:scottmills306/merch-angel
+bun pm trust merch-angel
+```
+
+Bun fetches the source directly from GitHub, links the CLI, and the
+postinstall script downloads vtracer. No npm, no registry, no account.
 
 ## Requirements
 

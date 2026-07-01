@@ -1,0 +1,14 @@
+.git
+.github
+tests/
+docs/
+examples/
+node_modules/
+.bun-*
+.vtracer-binary/
+*.test.ts
+tsconfig.json
+bun.lock
+biome.json
+.commitlintrc.json
+.editorconfig
