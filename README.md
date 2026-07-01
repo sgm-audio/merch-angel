@@ -122,3 +122,4 @@ MIT © [SGM Studios / Scott Mills](https://github.com/scottmills306)
 ---
 
 *merch-angel is a tool for creators who care about how their art prints.*
+
