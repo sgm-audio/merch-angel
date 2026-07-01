@@ -10,7 +10,7 @@ interface VerifyOptions {
   maxSize?: number
 }
 
-const DEFAULT_MAX_SIZE = 10 * 1024 * 1024
+const DEFAULT_MAX_SIZE = 20 * 1024 * 1024
 
 interface VerifyResult {
   file: string

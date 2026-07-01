@@ -13,7 +13,9 @@ interface EmbedOptions {
 }
 
 const DEFAULT_OPTIONS: EmbedOptions = {
-  maxDim: 3000,
+  // ponytail: 2000px cap keeps embedded SVGs under ~5 MB base64,
+  // well within Shopify's 20 MB limit. Bump via --max-dim if needed.
+  maxDim: 2000,
   stripBg: true,
 }
 
