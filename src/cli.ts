@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 // merch-angel — Image → Shopify-ready SVG batch pipeline
+// Usage: merch-angel convert <folder>
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -9,20 +10,15 @@ import { doctor } from './commands/doctor'
 import { preview } from './commands/preview'
 import { verify } from './commands/verify'
 import { banner } from './utils/log'
-import { info } from './utils/log'
 
-// Version from package.json
 function getVersion(): string {
   try {
-    const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'))
+    const pkg = JSON.parse(readFileSync(resolve(import.meta.dir, '..', 'package.json'), 'utf-8'))
     return pkg.version || '0.1.0'
-  } catch {
-    return '0.1.0'
-  }
+  } catch { return '0.1.0' }
 }
 
 const version = getVersion()
-
 const program = new Command()
 
 program
@@ -31,19 +27,19 @@ program
   .version(version, '-v, --version')
   .hook('preAction', () => banner(version))
 
-// convert
+// convert <folder> [options]
 program
   .command('convert')
-  .description('Convert images in a directory to Shopify-ready SVGs')
-  .requiredOption('-s, --src <path>', 'source directory containing images')
-  .requiredOption('-o, --out <path>', 'output directory for generated SVGs')
-  .option('-n, --dry-run', 'plan only — no files written')
-  .option('-f, --force-fallback', 'use JS fallback engine instead of vtracer')
-  .option('--vtracer-path <path>', 'path to vtracer binary')
-  .option('--no-strip-bg', 'disable white background stripping')
-  .action(async (opts) => {
+  .description('Convert images to Shopify-ready SVGs')
+  .argument('<folder>', 'folder containing images')
+  .option('-o, --out <dir>', 'output directory (default: <folder>-merch/)')
+  .option('-n, --dry-run', 'just show what would happen')
+  .option('-f, --force-fallback', 'use JS engine instead of vtracer')
+  .option('--vtracer-path <path>', 'custom vtracer binary')
+  .option('--no-strip-bg', 'keep white backgrounds')
+  .action(async (folder, opts) => {
     const result = await convert({
-      src: opts.src,
+      src: folder,
       out: opts.out,
       dryRun: opts.dryRun || false,
       forceFallback: opts.forceFallback || false,
@@ -53,34 +49,30 @@ program
     process.exit(result.exitCode)
   })
 
-// verify
+// verify <folder>
 program
   .command('verify')
-  .description('Verify generated SVGs are well-formed and within size limits')
-  .requiredOption('-d, --dir <path>', 'directory containing SVGs to verify')
-  .option('--max-size <bytes>', 'warn if SVG exceeds this size in bytes', String(10 * 1024 * 1024))
-  .action((opts) => {
-    const result = verify({ dir: opts.dir, maxSize: Number(opts.maxSize) })
-    process.exit(result.exitCode)
+  .description('Check SVGs are well-formed and within size limits')
+  .argument('<folder>', 'folder with SVGs to check')
+  .option('--max-size <bytes>', 'size warning threshold', String(20 * 1024 * 1024))
+  .action((folder, opts) => {
+    process.exit(verify({ dir: folder, maxSize: Number(opts.maxSize) }).exitCode)
   })
 
-// preview
+// preview <folder>
 program
   .command('preview')
-  .description('Serve a browser gallery of produced SVGs')
-  .requiredOption('-d, --dir <path>', 'directory containing SVGs to preview')
-  .option('-p, --port <number>', 'port for the gallery server', String(7465))
-  .action(async (opts) => {
-    await preview({ dir: opts.dir, port: Number(opts.port) })
+  .description('Browser gallery of produced SVGs')
+  .argument('<folder>', 'folder with SVGs to show')
+  .option('-p, --port <number>', 'port for gallery', String(7465))
+  .action(async (folder, opts) => {
+    await preview({ dir: folder, port: Number(opts.port) })
   })
 
 // doctor
 program
   .command('doctor')
-  .description('Check system dependencies and readiness')
-  .action(() => {
-    const result = doctor()
-    process.exit(result.exitCode)
-  })
+  .description('Check system deps are ready')
+  .action(() => process.exit(doctor().exitCode))
 
 program.parse(process.argv)

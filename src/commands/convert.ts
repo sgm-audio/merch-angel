@@ -1,32 +1,33 @@
 // merch-angel convert — main batch pipeline
 
-import { join, resolve } from 'node:path'
+import { join, resolve, dirname } from 'node:path'
 import { classify, classifySummary } from '../pipeline/classifier'
 import { Route } from '../pipeline/classifier'
 import { embedImage } from '../pipeline/embedder'
 import { writeManifest } from '../pipeline/manifest'
 import { isGreyscale, traceImage } from '../pipeline/tracer'
-import { error, info, error as logError, ok, warn } from '../utils/log'
-import { banner as printBanner } from '../utils/log'
+import { error, info, ok, warn, banner, summary } from '../utils/log'
 import { ensureDir, listImages } from '../utils/paths'
 
 interface ConvertOptions {
   src: string
-  out: string
+  out?: string
   dryRun?: boolean
   forceFallback?: boolean
   stripBg?: boolean
   vtracerPath?: string
 }
 
+function deriveOutputDir(src: string): string {
+  // ponytail: append -merch to the source dir name
+  return resolve(dirname(resolve(src)), `${resolve(src).split('/').pop()}-merch`)
+}
+
 export async function convert(
   options: ConvertOptions,
 ): Promise<{ exitCode: number; manifestPath?: string }> {
   const srcDir = resolve(options.src)
-  const outDir = resolve(options.out)
-
-  info(`source: ${srcDir}`)
-  info(`output: ${outDir}`)
+  const outDir = options.out ? resolve(options.out) : deriveOutputDir(srcDir)
 
   // Scan
   const entries = listImages(srcDir)
@@ -34,7 +35,6 @@ export async function convert(
     error('no image files found')
     return { exitCode: 2 }
   }
-  ok(`found ${entries.length} image files`)
 
   // Classify
   const classified = classify(entries)
@@ -83,7 +83,6 @@ export async function convert(
         warn(`trace failed: ${f.baseName}`)
       }
     } else if (f.route === Route.Embed) {
-      // Determine if we should strip bg — skip for greyscale/art that needs white
       const strip =
         options.stripBg !== false &&
         !f.baseName.toLowerCase().includes('grey') &&
@@ -102,14 +101,9 @@ export async function convert(
     }
   }
 
-  // Summary
-  printBanner('0.1.0')
-  info(`source: ${srcDir}`)
-  ok(`total: ${classified.length} files`)
-  info(`  traced:   ${traced}`)
-  info(`  embedded: ${embedded}`)
-  info(`  skipped:  ${skipped}`)
-  if (errors > 0) warn(`  errors:   ${errors}`)
+  // ponytail: one-line summary, not a table
+  banner('0.1.0')
+  info(`${classified.length} files → ${traced} traced, ${embedded} embedded, ${skipped} skipped, ${errors} failed`)
   info(`output: ${outDir}`)
 
   return { exitCode: errors > 0 ? 1 : 0, manifestPath }
