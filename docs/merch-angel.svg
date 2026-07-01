@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- merch-angel wordmark logo: stylized angel wing + arrow -->
+  <path d="M20 80 Q30 30 60 20 Q90 30 100 80 Q80 60 60 55 Q40 60 20 80Z"
+        fill="#2a2a28" stroke="none"/>
+  <path d="M50 40 L70 40 L60 65Z" fill="#f4f4f2"/>
+  <circle cx="60" cy="18" r="4" fill="#2a2a28"/>
+  <path d="M40 90 L80 90 L70 105 L50 105Z" fill="#555"/>
+</svg>

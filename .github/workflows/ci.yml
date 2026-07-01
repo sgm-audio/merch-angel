@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    name: Lint + Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run typecheck
+
+  test:
+    name: Test
+    needs: lint-typecheck
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install system deps (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+      - name: Install system deps (macOS)
+        if: runner.os == 'macOS'
+        run: brew install imagemagick
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - name: Upload coverage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  verify-convert:
+    name: E2E — batch convert
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+      - run: bun install --frozen-lockfile
+      - run: mkdir -p /tmp/merch-test/input
+      - name: Generate test fixtures
+        run: |
+          # Create test images of different types
+          magick -size 200x300 xc:white -fill '#333' -draw "circle 100,150 100,50" /tmp/merch-test/input/art_mockupsized.png
+          magick -size 400x300 xc:"#f0f0f0" -fill "#555" -draw "rectangle 50,50 350,250" /tmp/merch-test/input/diagram_website.png
+          magick -size 100x100 xc:gray -fill black -draw "point 50,50" /tmp/merch-test/input/phones_shot.jpg
+          echo "<?xml version=\"1.0\"?><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\" fill=\"red\"/></svg>" > /tmp/merch-test/input/existing.svg
+      - run: bun run src/cli.ts convert --src /tmp/merch-test/input --out /tmp/merch-test/output
+      - run: bun run src/cli.ts verify --dir /tmp/merch-test/output
+      - name: Check outputs
+        run: |
+          ls -la /tmp/merch-test/output/
+          [ -f /tmp/merch-test/output/art_mockupsized.svg ] || (echo "Missing trace output" && exit 1)
+          [ -f /tmp/merch-test/output/diagram_website_with_mockup.svg ] || (echo "Missing embed output" && exit 1)
+          [ -f /tmp/merch-test/output/existing.svg ] || (echo "Missing skip-pass output" && exit 1)
+          [ -f /tmp/merch-test/output/_manifest.csv ] || (echo "Missing manifest" && exit 1)
+          echo "✓ All outputs verified"
+
+  doctor:
+    name: Doctor check
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+      - run: bun install --frozen-lockfile
+      - run: bun run src/cli.ts doctor || echo "doctor may warn (vtracer binary)"
