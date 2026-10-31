@@ -4,12 +4,12 @@ Produced with `merch-angel` v0.1.0 on 2026-07-01.
 
 ## Source
 
-`/var/home/sgm/Downloads/Concrete Angel Prints/` — 38 files across 5 subfolders.
+`~/Downloads/Concrete Angel Prints/` — 38 files across 5 subfolders.
 
 ## Command
 
 ```bash
-merch-angel convert --src "/var/home/sgm/Downloads/Concrete Angel Prints" --out /tmp/merch-output
+merch-angel convert --src ~/Downloads/"Concrete Angel Prints" --out /tmp/merch-output
 ```
 
 ## Results

@@ -43,11 +43,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scottmills306/merch-angel.git"
+    "url": "git+https://github.com/sgm-audio/merch-angel.git"
   },
-  "homepage": "https://github.com/scottmills306/merch-angel#readme",
+  "homepage": "https://github.com/sgm-audio/merch-angel#readme",
   "bugs": {
-    "url": "https://github.com/scottmills306/merch-angel/issues"
+    "url": "https://github.com/sgm-audio/merch-angel/issues"
   },
   "author": "SGM Studios <scottmills306@gmail.com>",
   "devDependencies": {

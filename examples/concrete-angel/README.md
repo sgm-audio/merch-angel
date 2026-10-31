@@ -6,7 +6,7 @@ the Concrete Angel Prints artwork archive.
 ## Source
 
 ```
-/var/home/sgm/Downloads/Concrete Angel Prints/
+~/Downloads/Concrete Angel Prints/
 ```
 
 ~27 files across 5 folders: Concrete Angel, Concrete Angel Beige F,
