@@ -1,18 +1,17 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/scottmills306/merch-angel/main/docs/merch-angel.svg" width="120" alt="merch-angel">
+  <img src="docs/merch-angel.svg" width="120" alt="merch-angel">
 </p>
 
 <h1 align="center">merch-angel</h1>
 
 <p align="center">
   Image → Shopify-ready SVG batch pipeline.<br>
-  Brand-grade vectors without the bloat.
+  Batch-converts print artwork to SVGs that fit Shopify's limits.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/merch-angel?style=flat&color=%232a2a28" alt="npm">
-  <img src="https://github.com/scottmills306/merch-angel/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/npm/l/merch-angel?style=flat&color=%232a2a28" alt="MIT">
+  <img src="https://github.com/sgm-audio/merch-angel/actions/workflows/ci.yml/badge.svg" alt="CI">
+  <img src="https://img.shields.io/badge/license-MIT-%232a2a28?style=flat" alt="MIT">
   <img src="https://img.shields.io/badge/Bun-%3E%3D1.3.0-%23f9f3e3?style=flat" alt="Bun">
 </p>
 
@@ -21,12 +20,13 @@
 ## Install
 
 ```bash
-bun install -g github:scottmills306/merch-angel
+bun install -g github:sgm-audio/merch-angel
 bun pm trust merch-angel
 ```
 
-Two lines. Postinstall pulls the `vtracer` binary for your platform, verifies
-the SHA256, and links the CLI. No Docker, no Python, no system Rust, no npm account.
+Postinstall pulls the `vtracer` binary for your platform, checks its SHA256, and
+links the CLI. You also need ImageMagick 7 (the `magick` command) on your PATH. See
+Requirements below. It isn't published on npm; install it from GitHub as shown.
 
 **Prerequisites:** [Bun](https://bun.sh) ≥1.3.0, [ImageMagick](https://imagemagick.org) (`magick`).
 
@@ -102,8 +102,8 @@ Checks every SVG for:
 
 ## What gets downloaded
 
-Postinstall fetches [`vtracer`](https://github.com/vertex-lab/vtracer)
-(binary only, GPL-3.0 upsteam license) from the official GitHub release
+Postinstall fetches [`vtracer`](https://github.com/visioncortex/vtracer)
+(binary only, MIT-licensed upstream) from the official GitHub release
 at the pinned version. SHA256 verified. If the download fails — proxy,
 air-gapped, offline — `merch-angel` falls back to a pure-JS engine
 (`imagetracerjs`) with no native dependencies. Lower quality but works.
@@ -111,7 +111,7 @@ air-gapped, offline — `merch-angel` falls back to a pure-JS engine
 ## Install from GitHub (no npm account needed)
 
 ```bash
-bun install -g github:scottmills306/merch-angel
+bun install -g github:sgm-audio/merch-angel
 bun pm trust merch-angel
 ```
 
@@ -123,7 +123,7 @@ postinstall script downloads vtracer. No npm, no registry, no account.
 | Tool | Required | Notes |
 |---|---|---|
 | Bun ≥1.3.0 | ✓ | Runtime |
-| ImageMagick `magick` | ✓ | Resize, format detection, pre-process |
+| ImageMagick 7 `magick` | ✓ | Resize, format detection, pre-process. Ubuntu's `imagemagick` package is IM6 and has no `magick` command |
 | vtracer binary | optional | Downloaded postinstall; pure-JS fallback built-in |
 
 ## Legal
@@ -137,7 +137,7 @@ print-on-demand platforms will ban you for it.
 
 ## License
 
-MIT © [SGM Studios / Scott Mills](https://github.com/scottmills306)
+MIT © [SGM Studios / Scott Mills](https://github.com/sgm-audio)
 
 ---
 

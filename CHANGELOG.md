@@ -28,5 +28,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All verifications pass: SVG well-formedness, size, base64 payload, no security issues
 
 ### Notes
-- vtracer GPL binary is downloaded postinstall, never bundled.
+- vtracer binary is downloaded postinstall, never bundled.
 - SHA256 verification via pinned shasums committed to repo.
