@@ -1,5 +1,6 @@
 // merch-angel convert — main batch pipeline
 
+import { copyFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { classify, classifySummary } from '../pipeline/classifier'
 import { Route } from '../pipeline/classifier'
@@ -63,6 +64,7 @@ export async function convert(
     const outputPath = join(outDir, f.outputName)
 
     if (f.route === Route.Skip) {
+      copyFileSync(inputPath, outputPath)
       skipped++
       continue
     }
