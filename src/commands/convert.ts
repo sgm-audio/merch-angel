@@ -1,12 +1,12 @@
 // merch-angel convert — main batch pipeline
 
-import { join, resolve, dirname } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { classify, classifySummary } from '../pipeline/classifier'
 import { Route } from '../pipeline/classifier'
 import { embedImage } from '../pipeline/embedder'
 import { writeManifest } from '../pipeline/manifest'
 import { isGreyscale, traceImage } from '../pipeline/tracer'
-import { error, info, ok, warn, banner, summary } from '../utils/log'
+import { banner, error, info, ok, summary, warn } from '../utils/log'
 import { ensureDir, listImages } from '../utils/paths'
 
 interface ConvertOptions {
@@ -103,7 +103,9 @@ export async function convert(
 
   // ponytail: one-line summary, not a table
   banner('0.1.0')
-  info(`${classified.length} files → ${traced} traced, ${embedded} embedded, ${skipped} skipped, ${errors} failed`)
+  info(
+    `${classified.length} files → ${traced} traced, ${embedded} embedded, ${skipped} skipped, ${errors} failed`,
+  )
   info(`output: ${outDir}`)
 
   return { exitCode: errors > 0 ? 1 : 0, manifestPath }
