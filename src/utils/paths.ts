@@ -37,7 +37,17 @@ export function listImages(srcDir: string): FileEntry[] {
   return entries
 }
 
-const IMAGE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.tiff', '.tif', '.svg'])
+const IMAGE_EXTS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.bmp',
+  '.webp',
+  '.tiff',
+  '.tif',
+  '.svg',
+])
 
 export function isImageExt(name: string): boolean {
   return IMAGE_EXTS.has(extname(name).toLowerCase())
