@@ -75,7 +75,7 @@ jobs:
           magick -size 100x100 xc:gray -fill black -draw "point 50,50" /tmp/merch-test/input/phones_shot.jpg
           echo "<?xml version=\"1.0\"?><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\" fill=\"red\"/></svg>" > /tmp/merch-test/input/existing.svg
       - run: bun run src/cli.ts convert /tmp/merch-test/input --out /tmp/merch-test/output
-      - run: bun run src/cli.ts verify --dir /tmp/merch-test/output
+      - run: bun run src/cli.ts verify /tmp/merch-test/output
       - name: Check outputs
         run: |
           ls -la /tmp/merch-test/output/
