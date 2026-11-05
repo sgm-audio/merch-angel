@@ -3,7 +3,7 @@
 ## Quick start
 
 ```bash
-git clone https://github.com/scottmills306/merch-angel
+git clone https://github.com/sgm-audio/merch-angel
 cd merch-angel
 bun install
 bun run src/cli.ts doctor    # confirm deps
